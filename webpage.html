@@ -1,0 +1,123 @@
+<html>
+
+<title>Pomodoro</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<style>
+.panel-primary {
+  background-color: #006AB3 !important;
+}
+
+#time { 
+    color: white;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: 1000px;
+  }
+}
+
+.Aligner{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 7cm;
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script type="text/javascript">
+
+//Original from http://stackoverflow.com/a/20618517
+
+function startTimer(duration, display) {
+
+    var timer = duration, minutes, seconds;
+
+    var refreshIntervalId = setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        document.title = minutes + ":" + seconds + " {{status}}";
+
+        //Timer finished
+        if (--timer < 0) {
+
+            //Stop 5 seconds for the sound and sanity
+            setTimeout(refresh, 5000);
+
+            //Sound from https://www.freesound.org/people/juskiddink/sounds/74920/
+            var snd = new Audio("/bell/bell.wav");
+            snd.play();
+
+            //Do not repeat this loop anymore
+            clearInterval(refreshIntervalId);
+        }
+
+        //Change to red for the last 30 seconds
+        if (timer < 30) {
+
+            $("#color").attr("class", "panel panel-danger");
+            $("#color").css({"backgroundColor":"#D8ABAB"});
+        }
+
+    }, 1000);
+
+    //Just refresh the page
+    function refresh() {
+
+        location.reload();
+    }
+}
+
+window.onload = function () {
+
+    //Gets the timer from the server for sync
+    var timer = {{timer}},
+        display = document.querySelector('#time');
+    startTimer(timer, display);
+
+    //Change color depending on break or working
+    if ("{{status}}" == "pomodoro") {
+        $("#color").attr("class", "panel panel-primary");
+        $("#color").css({"backgroundColor":"#006AB3"});
+
+    } else {
+
+        $("#color").attr("class", "panel panel-sucess");
+        $("#color").css({"backgroundColor":"#EDF0BE"});
+        $("#time").css({"color":"black"});
+    }
+
+};
+
+</script>
+
+<body>
+    <!-- <div>The timer is  we a {{status}} is running and so far we have done {{breaks}} short breaks</div> -->
+    <div class="Aligner">
+        <div class = "col-lg-4 text-center pagination-centered">
+            <div class="panel panel-primary" id="color">
+
+                <div class="panel-body">
+                    <h1 class="display-1"><span id="time"></span></h1>
+                </div>
+
+                <div class="panel-footer">
+                    A {{status}} is running and so far we have done {{breaks}} short breaks
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
